@@ -12,11 +12,7 @@ services:
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    entrypoint:
-      - bash
-      - -c
-      - |
-        elasticsearch-plugin install analysis-nori --batch && /usr/local/bin/docker-entrypoint.sh
+    # entrypoint 제거 → Nori는 이미 내장돼 있으므로 설치 불필요
     ports:
       - "9200:9200"
       - "9300:9300"

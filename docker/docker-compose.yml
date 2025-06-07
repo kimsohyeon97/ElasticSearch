@@ -1,3 +1,5 @@
+version: '3.8'
+
 networks:
   spring-net:
     external: true
@@ -46,9 +48,11 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.8.2
     container_name: logstash
+    ports:
+      - "9600:9600"  
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
-      - ./logstash/config:/usr/share/logstash/config
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./mysql-connector:/usr/share/logstash/mysql-connector
     environment:
       - "LS_JAVA_OPTS=-Xms512m -Xmx512m"
@@ -59,6 +63,7 @@ services:
         condition: service_healthy
     networks:
       - spring-net
+
 
   mysql:
     image: mysql:8

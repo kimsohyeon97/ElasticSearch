@@ -36,6 +36,26 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("ID가 'productSearchForm'인 폼을 찾을 수 없습니다.");
     }
 
+    // 상품 목록 로드
+    loadProducts(`&sortType=salesCount&period=`);
+
+    // 카테고리 아코디언 기능
+    const parents = document.querySelectorAll(".category .parent");
+    parents.forEach(parent => {
+        parent.style.cursor = "pointer";
+        parent.addEventListener("click", () => {
+            const currentChildren = parent.nextElementSibling;
+            document.querySelectorAll(".category .children").forEach(children => {
+                if (children !== currentChildren) {
+                    children.style.display = "none";
+                }
+            });
+            if (currentChildren && currentChildren.classList.contains("children")) {
+                const isVisible = currentChildren.style.display === "block";
+                currentChildren.style.display = isVisible ? "none" : "block";
+            }
+        });
+    });
 
     function attachProductClickHandler(containerSelector, cardSelector) {
         const container = document.querySelector(containerSelector);
@@ -214,8 +234,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const subKeywordInputElement = document.getElementById('subKeywordInput');
         const subKeywordParam = subKeywordInputElement ? subKeywordInputElement.value.trim() : '';
 
-        console.log(keywordParam);
-
+        if (!keywordParam.trim() && !subKeywordParam) {
+            const productListContainer = document.querySelector('#productWrapper .product-list');
+            const pageContainer        = document.querySelector('.page');
+            productListContainer.innerHTML = `
+            <div class="no-results-message">
+              먼저 검색어를 입력해주세요.
+            </div>`;
+            if (pageContainer) pageContainer.innerHTML = '';
+            return;
+        }
 
         const selectedFilters = [];
         document.querySelectorAll('.search_filters input[name="filter"]:checked').forEach(checkbox => {
@@ -282,16 +310,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const productListContainer = document.querySelector('#productWrapper .product-list');
                 productListContainer.innerHTML = '';
 
-                // 아직 Ajax 로드된 데이터가 없으면
-                if (!params) {
-                    productListContainer.innerHTML = `
-                  <div class="no-results-message">
-                    먼저 검색어를 입력해주세요.
-                  </div>`;
-                    if (pageContainer) pageContainer.innerHTML = '';
-                    return;
-                }
-
                 const pageContainer = document.querySelector('.page');
 
                 if (totalItems === 0) {
@@ -305,23 +323,26 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 } else {
                     data.dtoList.forEach(product => {
+                        const productItem = document.createElement('div');
+                        productItem.classList.add('product-item');
+                        productItem.setAttribute('data-prodno', product.prodNo);
                         productItem.innerHTML = `
-                        <img class="product-img" src="${product.snameList}" alt="${product.prodName}" />
-                        <div class="product-info">
-                            <span class="vendor-name">${product.company}</span><br>
-                            <span class="pname">${product.prodName}</span>
-                            <div class="meta">
-                                <span>★ ${product.ratingAvg !== null ? product.ratingAvg.toFixed(1) : 0}</span>&nbsp;|&nbsp;리뷰 <span>${product.reviewCount}</span>
-                            </div>
+                    <img class="product-img" src="${product.snameList}" alt="${product.prodName}" />
+                    <div class="product-info">
+                        <span class="vendor-name">${product.company}</span><br>
+                        <span class="pname">${product.prodName}</span>
+                        <div class="meta">
+                            <span>★ ${product.ratingAvg !== null ? product.ratingAvg.toFixed(1) : 0}</span>&nbsp;|&nbsp;리뷰 <span>${product.reviewCount}</span>
                         </div>
-                        <div class="product-price">
-                            <span>${formatNumber(product.prodPrice)}원</span>
-                            <div class="icons">
-                                <button><img src="/images/product/icon_favorite.png" alt="찜"></button>
-                                <button><img src="/images/product/icon_cart.png" alt="장바구니"></button>
-                            </div>
+                    </div>
+                    <div class="product-price">
+                        <del>${formatNumber(product.prodPrice)}원</del><br>
+                        <div class="icons">
+                            <button><img src="/images/product/icon_favorite.png" alt="찜"></button>
+                            <button><img src="/images/product/icon_cart.png" alt="장바구니"></button>
                         </div>
-                    `;
+                    </div>
+                `;
                         productListContainer.appendChild(productItem);
                     });
 

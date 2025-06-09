@@ -1,16 +1,15 @@
-version: '3.8'
-
 networks:
-  spring-net:
-    external: true
-    name: spring-net
+  search:
+    driver: bridge
 
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.8.2
     container_name: elasticsearch
     environment:
-      - discovery.type=single-node
+      - node.name=node1
+      - cluster.name=my-cluster
+      - discovery.type=single-node  
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false
@@ -18,9 +17,9 @@ services:
       - "9200:9200"
       - "9300:9300"
     volumes:
-      - es-data:/usr/share/elasticsearch/data
+      - es-data1:/usr/share/elasticsearch/data
     networks:
-      - spring-net
+      - search
     healthcheck:
       test: curl -s http://localhost:9200 || exit 1
       interval: 10s
@@ -28,10 +27,11 @@ services:
       retries: 10
     command: >
       bash -c "
-      if [ ! -d 'plugins/analysis-nori' ]; then
+      if [ ! -d '/usr/share/elasticsearch/plugins/analysis-nori' ]; then
         bin/elasticsearch-plugin install --batch analysis-nori;
       fi &&
       exec /usr/local/bin/docker-entrypoint.sh"
+
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.8.2
@@ -43,13 +43,13 @@ services:
     depends_on:
       - elasticsearch
     networks:
-      - spring-net
+      - search
 
   logstash:
     image: docker.elastic.co/logstash/logstash:8.8.2
     container_name: logstash
     ports:
-      - "9600:9600"  
+      - "9600:9600"
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
@@ -62,8 +62,7 @@ services:
       elasticsearch:
         condition: service_healthy
     networks:
-      - spring-net
-
+      - search
 
   mysql:
     image: mysql:8
@@ -76,7 +75,7 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
-      - spring-net
+      - search
 
   mongodb:
     image: mongo:6
@@ -86,7 +85,7 @@ services:
     volumes:
       - mongo-data:/data/db
     networks:
-      - spring-net
+      - search
 
   redis:
     image: redis:7-alpine
@@ -96,9 +95,10 @@ services:
     volumes:
       - redis-data:/data
     networks:
-      - spring-net
+      - search
 
   spring-app:
+    build: ./elasticsearch
     image: spring-app:1.0.2
     container_name: spring-app
     depends_on:
@@ -112,10 +112,10 @@ services:
     ports:
       - "8081:8080"
     networks:
-      - spring-net
+      - search
 
 volumes:
-  es-data:
+  es-data1:
   mysql-data:
   mongo-data:
   redis-data:

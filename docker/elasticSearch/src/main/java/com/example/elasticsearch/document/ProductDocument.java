@@ -1,45 +1,43 @@
 package com.example.elasticsearch.document;
 
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import java.time.LocalDateTime;
-
-@Data
-@Document(indexName = "product_20240604")
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Document(indexName = "product_*")
 public class ProductDocument {
+
     @Id
     private Long id;
 
-    @Field(type = FieldType.Text,
-            analyzer = "autocomplete_analyzer",
-            searchAnalyzer = "standard")
+    @Field(name = "prod_name", type = FieldType.Text, analyzer = "nori_analyzer")
     private String prodName;
 
-    @Field(type = FieldType.Keyword)
+    @Field(name = "company", type = FieldType.Text, analyzer = "nori_analyzer")
     private String company;
 
-    @Field(type = FieldType.Float)
+    @Field(name = "rating_avg", type = FieldType.Double)
     private Double ratingAvg;
 
-    @Field(type = FieldType.Integer)
+    @Field(name = "review_count", type = FieldType.Integer)
     private Integer reviewCount;
 
-    @Field(type = FieldType.Integer)
+    @Field(name = "prod_price", type = FieldType.Integer)
     private Integer prodPrice;
 
-    @Field(type = FieldType.Keyword)
+    @Field(name = "sname_list", type = FieldType.Text)
     private String snameList;
 
-    @Field(type = FieldType.Keyword)
+    @Field(name = "link", type = FieldType.Text)
     private String link;
 
-    @Field(type = FieldType.Integer)
+    @Field(name = "sales_count", type = FieldType.Integer) // <-- 이 부분 중요
     private Integer salesCount;
 
-    @Field(type = FieldType.Date)
-    private LocalDateTime crawledAt;
 }

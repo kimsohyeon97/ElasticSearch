@@ -174,14 +174,17 @@ h2 {
 }
 
 .vendor-name {
+    display: inline-block;
     padding: 3px 6px;
     background-color: #78685b;
     color: white;
-    font-size: 12px;
+    font-size: 15px;
+    margin-bottom: 10px;
 }
 
-.vendor-rank {
-    margin-left: 3px;
+.pname {
+    margin-top: 10px;
+    font-size: 15px;
 }
 
 .icons {
@@ -343,10 +346,10 @@ h2 {
 }
 
 .product-price > del {
-    color: #999;
-    text-decoration: line-through;
-    font-size: 14px;
-    margin-right: 50px;
+    text-decoration: none;
+    color: #333;
+    font-size: 20px;
+    margin-right: 20px;
 }
 
 .product-price .icons {

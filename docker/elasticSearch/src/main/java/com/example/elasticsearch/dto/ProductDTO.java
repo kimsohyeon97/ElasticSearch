@@ -7,6 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 public class ProductDTO {
     private Long id;
     private String prodName;
@@ -17,23 +18,23 @@ public class ProductDTO {
     private String snameList;
     private String link;
     private Integer salesCount;
-    private String crawledAt;
 
-    /** Elasticsearch Document → DTO 변환 */
-    public static ProductDTO fromDocument(ProductDocument doc) {
+
+
+    public static ProductDTO fromDocument(ProductDocument productDocument) {
+        if (productDocument == null) {
+            return null;
+        }
         return ProductDTO.builder()
-                .id(doc.getId())
-                .prodName(doc.getProdName())
-                .company(doc.getCompany())        // ← here
-                .ratingAvg(doc.getRatingAvg())
-                .reviewCount(doc.getReviewCount())
-                .prodPrice(doc.getProdPrice())
-                .snameList(doc.getSnameList())
-                .link(doc.getLink())
-                .salesCount(doc.getSalesCount())
-                .crawledAt(doc.getCrawledAt() != null
-                        ? doc.getCrawledAt().toString()
-                        : null)
+                .id(productDocument.getId())
+                .prodName(productDocument.getProdName())
+                .company(productDocument.getCompany())
+                .ratingAvg(productDocument.getRatingAvg())
+                .reviewCount(productDocument.getReviewCount())
+                .prodPrice(productDocument.getProdPrice())
+                .snameList(productDocument.getSnameList())
+                .link(productDocument.getLink())
+                .salesCount(productDocument.getSalesCount())
                 .build();
     }
 }
